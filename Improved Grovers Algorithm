@@ -1,0 +1,44 @@
+from qiskit import QuantumCircuit, transpile
+from qiskit_aer import AerSimulator
+from qiskit_ibm_runtime.fake_provider import FakeManilaV2
+
+qc = QuantumCircuit(3, 3)
+
+qc.h(0)
+qc.h(1)
+qc.h(2)
+qc.barrier()
+
+def Grover(times):
+    for i in range(times):
+        qc.h(2)
+        qc.ccx(0, 1, 2)
+        qc.h(2)
+        qc.barrier()
+
+        qc.h(0)
+        qc.h(1)
+        qc.h(2)
+        qc.x(0)
+        qc.x(1)
+        qc.x(2)
+        qc.h(2)
+        qc.ccx(0, 1, 2)
+        qc.h(2)
+        qc.x(0)
+        qc.x(1)
+        qc.x(2)
+        qc.h(0)
+        qc.h(1)
+        qc.h(2)
+
+Grover(6)
+
+qc.measure([0, 1, 2], [0, 1, 2])
+
+noisy_backend = AerSimulator()
+
+job = noisy_backend.run(qc, shots=100000)
+result = job.result()
+counts = result.get_counts(qc)
+print(counts)
